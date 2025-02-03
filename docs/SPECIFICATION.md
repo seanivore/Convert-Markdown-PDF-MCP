@@ -1,45 +1,50 @@
-# Markdown PDF MCP Specification
+# MD-PDF-MCP Specification
 
 ## Overview
-MCP server for converting Markdown documents to styled PDFs using VS Code's styling.
+MCP server for converting Markdown documents to styled PDFs using VS Code's styling and ReportLab.
 
 ## API
 
 ### convert_markdown
-Converts a markdown document to PDF with VS Code-style rendering.
+Converts a markdown document to PDF using VS Code styling.
 
 Input:
-```typescript
+```python
 {
-  markdown: string,      // Markdown content to convert
-  theme: 'light'|'dark', // Color theme to use
-  outputPath: string     // Where to save the PDF
+    "markdown": str,     # Markdown content to convert
+    "output_path": str,  # Where to save the PDF
 }
 ```
 
 Output:
-```typescript
+```python
 {
-  success: boolean,      // Whether conversion succeeded
-  path?: string,         // Path to generated PDF if successful
-  error?: string        // Error message if failed
+    "success": bool,     # Whether conversion succeeded
+    "path": str,        # Path to generated PDF if successful
+    "error": str       # Error message if failed
 }
 ```
 
 ## Implementation Details
 
 ### Dependencies
-- markdown-it: Markdown parsing
-- WeasyPrint: HTML/CSS to PDF conversion
-- MCP TypeScript SDK: Protocol implementation
+- reportlab: PDF generation
+- MCP Python SDK: Protocol implementation
 
 ### Processing Flow
-1. Parse markdown to HTML using markdown-it
-2. Apply VS Code CSS styling and selected theme
-3. Convert to PDF using WeasyPrint
+1. Parse markdown text
+2. Apply VS Code styling (via ReportLab styles)
+3. Generate PDF using ReportLab
 4. Return result via MCP response
 
 ### Error Handling
 - Invalid markdown: Return parse error
-- PDF generation failure: Return WeasyPrint error
+- PDF generation failure: Return error message
 - File system errors: Return IO error message
+
+### Style Conversion
+VS Code's markdown.css styles are converted to ReportLab's format while maintaining:
+- Typography
+- Spacing
+- Colors
+- Element styling

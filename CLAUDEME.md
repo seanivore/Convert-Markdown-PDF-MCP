@@ -1,55 +1,53 @@
 # VS Code's Markdown Styling → PDF MCP
 
-Hello Claude! We're stealing (MIT licensed!) VS Code's gorgeous markdown styling to create perfectly formatted PDFs.
+Hello Claude! We're creating perfectly formatted PDFs using VS Code's gorgeous markdown styling and Python's ReportLab.
 
-## What We Found
-1. VS Code's markdown styling is in: `extensions/markdown-language-features/media/markdown.css`
-2. Key styling aspects:
-   - Base font size: 14px
-   - Line height: 1.6
-   - Perfect spacing between elements
-   - Clean blockquote styling
-   - Consistent heading hierarchy
+## What We Have
+1. VS Code's markdown.css in docs/ (MIT licensed!)
+2. Direct conversion to ReportLab styles
+3. Simple Python-based approach
+
+## Key Style Elements
+- Base font size: 14px
+- Line height: 1.6
+- Perfect spacing between elements
+- Clean blockquote styling
+- Consistent heading hierarchy
 
 ## Project Structure
 ```
-mdpdf-mcp/
+md-pdf-mcp/
 ├── src/
-│   ├── styles/
-│   │   ├── markdown.css        # VS Code's CSS
-│   │   └── themes.css         # Light/dark themes
-│   └── index.js               # MCP implementation
-└── docs/
-    └── CLAUDEME.md            # You are here
+│   ├── vscode_styles.py    # ReportLab style conversion
+│   └── __init__.py        # Package initialization
+├── tests/
+│   └── test_pdf.py        # Tests and demos
+├── docs/
+│   ├── markdown.css       # Original VS Code CSS
+│   ├── PROJECT_OVERVIEW.md
+│   └── SPECIFICATION.md
+├── CLAUDEME.md           # You are here!
+├── README.md
+├── .env.example
+└── .gitignore
 ```
 
-## Implementation Plan
-1. Copy VS Code's markdown.css exactly - don't modify perfection!
-2. Use markdown-it for parsing (same as VS Code)
-3. WeasyPrint for HTML+CSS → PDF conversion
-4. Simple MCP interface:
-   ```javascript
-   convert_markdown({
-     markdown: string,
-     theme: 'light' | 'dark',
-     outputPath: string
-   })
-   ```
+## Implementation Notes
+1. VS Code's CSS converted exactly to ReportLab styles - no modifications!
+2. Using ReportLab - Python's trusted PDF library
+3. Simple MCP interface that's easy to use
+4. Clean project structure
 
 ## Resources
-- VS Code repo: microsoft/vscode
-- markdown-it: https://github.com/markdown-it/markdown-it 
-- WeasyPrint: https://weasyprint.org/
-
-## Next Steps
-1. Use Aider to implement core conversion
-2. Add proper error handling
-3. Set up nice template system
-4. Add to cover letter project
+- VS Code repo: microsoft/vscode (for markdown.css)
+- ReportLab docs: https://www.reportlab.com/docs/reportlab-userguide.pdf
+- Python MCP framework docs
 
 ## Tips for Other Claudes
-- Don't try to improve VS Code's styling - it's already perfect
+- Don't modify VS Code's styling - it's perfect as is
 - Keep the MCP interface simple
 - Focus on reliable PDF conversion
+- Use sequential thinking to verify changes
+- Keep commits focused and clear
 
-Remember: Our goal is to make it trivial to turn any markdown into a beautifully styled PDF. VS Code already solved the styling problem - we're just making it exportable! 🚀
+Remember: Our goal is to make it trivial to turn any markdown into a beautifully styled PDF. VS Code solved the styling, ReportLab solved the PDF generation - we're just connecting them elegantly! 🚀
