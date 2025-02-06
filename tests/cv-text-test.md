@@ -1,7 +1,6 @@
-# Cover Letter, Sean Horvath H1
-**Creative Director at Beam - BOLD TEXT**
-
-*Thursday, February 6, 2025 ITALICS*
+# H1 Cover Letter, Sean Horvath
+## H2 Creative Director at Beam
+### H3 Thursday, February 6, 2025
 
 Dear Beam Team,
 
@@ -16,24 +15,18 @@ As Creative Director for Silent Protocol (launching February 2025), I've transfo
 
 Now, I couldn’t pass over an “Upload up to 10 supported files… Max 10 MB per file” prompt without pulling together some visuals. Consider the images a teaser — with their full stories available at the portfolio links below.
 
-## Relevant Links H2
+#### H4 Portfolio Links 
 
-### “Technical Precision Meets Creative Vision” H3
+##### H5 “Technical Precision Meets Creative Vision”
 > A carrot nudged in Web3 Motion Design & 3D Animation: Check out how technical precision meets creative vision in motion design systems and blockchain visualization.
 
-### “Visualizing Complex Systems” H3
+##### H5 “Visualizing Complex Systems”
 > Technical Translation & Brand Strategy: See how we made complex protocols accessible through culture-driven design and visual storytelling.
 
-### “Culture-Driven Design” H3
+##### H5 “Culture-Driven Design”
 > Creative Direction & Brand Development: Explore how we built community through strategic design and visual systems.
 
-### “Where Gaming Meets Innovation” H3
-> Digital Art & Gaming Elements: From planetary environments to character design, see where gaming meets innovation.
-
-### “Where Gaming Meets Innovation” H3
-> Digital Art & Gaming Elements: From planetary environments to character design, see where gaming meets innovation.
-
-### “Where Gaming Meets Innovation” H3
+##### H5 “Where Gaming Meets Innovation”
 > Digital Art & Gaming Elements: From planetary environments to character design, see where gaming meets innovation.
 
 The attached visuals showcase this journey — from 3D coin animations, to gaming worlds and culture-driven design. Each piece illustrates the crafting of a message into a strategy defined by user behavior, and delivered via their medium du’jour.

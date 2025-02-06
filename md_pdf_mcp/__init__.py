@@ -220,9 +220,33 @@ def convert_markdown_to_pdf(
                     continue
                     
                 if element.tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
-                    style = f'Heading{element.tag[1]}'
                     text = process_inline_text(element)
-                    elements.append(Paragraph(text, styles[style]))
+                    
+                    # Special handling for font comparison
+                    if 'Bernina Sans Compressed' in text:
+                        elements.append(Paragraph(text, styles['BerninaCompressed']))
+                    elif 'Bernino Sans Compressed' in text:
+                        elements.append(Paragraph(text, styles['BerninoCompressed']))
+                    elif 'Bernina Sans Condensed' in text:
+                        elements.append(Paragraph(text, styles['BerninaCondensed']))
+                    elif 'Bernino Sans Condensed' in text:
+                        elements.append(Paragraph(text, styles['BerninoCondensed']))
+                    elif 'Bernina Sans Narrow' in text:
+                        elements.append(Paragraph(text, styles['BerninaNarrow']))
+                    elif 'Bernino Sans Narrow' in text:
+                        elements.append(Paragraph(text, styles['BerninoNarrow']))
+                    elif 'Bernina Sans Regular' in text:
+                        elements.append(Paragraph(text, styles['BerninaRegular']))
+                    elif 'Bernino Sans Regular' in text:
+                        elements.append(Paragraph(text, styles['BerninoRegular']))
+                    elif 'Bernina Sans Bold' in text:
+                        elements.append(Paragraph(text, styles['BerninaBold']))
+                    elif 'Bernino Sans Bold' in text:
+                        elements.append(Paragraph(text, styles['BerninoBold']))
+                    else:
+                        style = f'Heading{element.tag[1]}'
+                        elements.append(Paragraph(text, styles[style]))
+                    
                     if element.tag == 'h1':
                         in_header = True
                     else:
@@ -230,6 +254,12 @@ def convert_markdown_to_pdf(
                     last_was_heading = True
                         
                 elif element.tag == 'p':
+                    # Skip paragraphs that are inside blockquotes
+                    # TODO: Fix blockquote parent check
+                    # parent = root.find('.//*[.//p="%s"]' % element)
+                    # if parent is not None and parent.tag == 'blockquote':
+                    #     continue
+                        
                     text = process_inline_text(element)
                     
                     # Check for signature section
@@ -240,23 +270,31 @@ def convert_markdown_to_pdf(
                     if in_header:
                         if 'ITALICS' in text:  # Date line
                             text = text.replace('ITALICS', '').strip()
-                            elements.append(Paragraph(text, styles['DateLine']))
+                            elements.append(Paragraph(text, styles['Heading3']))  # Was DateLine
                         else:  # Role line
-                            elements.append(Paragraph(text, styles['HeaderInfo']))
+                            elements.append(Paragraph(text, styles['Heading2']))  # Was HeaderInfo
                             if last_was_heading:
                                 elements.append(Spacer(1, em_to_pt(0.3)))
                     elif in_signature:
-                        elements.append(Paragraph(text, styles['Signature']))
+                        # Split signature into lines and add each as separate paragraph
+                        sig_lines = text.split('\n')
+                        for line in sig_lines:
+                            if line.strip():
+                                elements.append(Paragraph(line.strip(), styles['Signature']))
                     else:
                         elements.append(Paragraph(text, styles['Body']))
                     last_was_heading = False
                     
                 elif element.tag == 'blockquote':
-                    # Process only immediate text content and first paragraph
-                    text = element.text or ''
+                    # Process blockquote content
+                    text = ''
                     p_elements = element.findall('p')
-                    if p_elements and p_elements[0].text:
-                        text = text + ' ' + p_elements[0].text if text else p_elements[0].text
+                    if p_elements:
+                        # Get text from all paragraphs in the blockquote
+                        text = ' '.join(process_inline_text(p) for p in p_elements)
+                    elif element.text:
+                        text = element.text
+                    
                     if text.strip():
                         elements.append(Paragraph(text.strip(), styles['Blockquote']))
                     last_was_heading = False
