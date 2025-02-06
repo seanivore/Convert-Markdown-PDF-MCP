@@ -18,16 +18,16 @@ Now, I couldn’t pass over an “Upload up to 10 supported files… Max 10 MB p
 #### H4 Portfolio Links 
 
 ##### H5 “Technical Precision Meets Creative Vision”
-> A carrot nudged in Web3 Motion Design & 3D Animation: Check out how technical precision meets creative vision in motion design systems and blockchain visualization.
+A carrot nudged in Web3 Motion Design & 3D Animation: Check out how technical precision meets creative vision in motion design systems and blockchain visualization.
 
 ##### H5 “Visualizing Complex Systems”
-> Technical Translation & Brand Strategy: See how we made complex protocols accessible through culture-driven design and visual storytelling.
+Technical Translation & Brand Strategy: See how we made complex protocols accessible through culture-driven design and visual storytelling.
 
 ##### H5 “Culture-Driven Design”
-> Creative Direction & Brand Development: Explore how we built community through strategic design and visual systems.
+Creative Direction & Brand Development: Explore how we built community through strategic design and visual systems.
 
 ##### H5 “Where Gaming Meets Innovation”
-> Digital Art & Gaming Elements: From planetary environments to character design, see where gaming meets innovation.
+Digital Art & Gaming Elements: From planetary environments to character design, see where gaming meets innovation.
 
 The attached visuals showcase this journey — from 3D coin animations, to gaming worlds and culture-driven design. Each piece illustrates the crafting of a message into a strategy defined by user behavior, and delivered via their medium du’jour.
 

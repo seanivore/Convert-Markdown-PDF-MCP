@@ -214,77 +214,26 @@ def convert_markdown_to_pdf(
             # Track document sections
             in_header = False
             in_signature = False
-            in_portfolio = False
-            in_blockquote = False
             last_was_heading = False
             
             for element in root.iter():
                 if element.tag == 'root':
                     continue
                 
-                print(f"\nProcessing element: {element.tag}")
-                print(f"Current state: portfolio={in_portfolio}, blockquote={in_blockquote}")
-                    
-                # Track when we enter and exit blockquotes
-                if element.tag == 'blockquote':
-                    print("-> Entering blockquote")
-                    in_blockquote = True
-                elif in_blockquote and element.tag != 'p':
-                    print("<- Exiting blockquote")
-                    in_blockquote = False
-                    
                 if element.tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
-                    print(f"-> Processing heading {element.tag}")
                     text = process_inline_text(element)
-                    
-                    # Special handling for font comparison
-                    if 'Bernina Sans Compressed' in text:
-                        elements.append(Paragraph(text, styles['BerninaCompressed']))
-                    elif 'Bernino Sans Compressed' in text:
-                        elements.append(Paragraph(text, styles['BerninoCompressed']))
-                    elif 'Bernina Sans Condensed' in text:
-                        elements.append(Paragraph(text, styles['BerninaCondensed']))
-                    elif 'Bernino Sans Condensed' in text:
-                        elements.append(Paragraph(text, styles['BerninoCondensed']))
-                    elif 'Bernina Sans Narrow' in text:
-                        elements.append(Paragraph(text, styles['BerninaNarrow']))
-                    elif 'Bernino Sans Narrow' in text:
-                        elements.append(Paragraph(text, styles['BerninoNarrow']))
-                    elif 'Bernina Sans Regular' in text:
-                        elements.append(Paragraph(text, styles['BerninaRegular']))
-                    elif 'Bernino Sans Regular' in text:
-                        elements.append(Paragraph(text, styles['BerninoRegular']))
-                    elif 'Bernina Sans Bold' in text:
-                        elements.append(Paragraph(text, styles['BerninaBold']))
-                    elif 'Bernino Sans Bold' in text:
-                        elements.append(Paragraph(text, styles['BerninoBold']))
-                    else:
-                        style = f'Heading{element.tag[1]}'
-                        if element.tag == 'h5':
-                            # H5 sections use the callout treatment
-                            elements.append(Paragraph(text, styles['Heading5']))
-                        else:
-                            elements.append(Paragraph(text, styles[style]))
+                    style = f'Heading{element.tag[1]}'
+                    elements.append(Paragraph(text, styles[style]))
                     
                     # Update section tracking
                     if element.tag == 'h1':
                         in_header = True
-                        in_portfolio = False
-                    elif element.tag == 'h4':
-                        in_portfolio = False  # Reset for new major section
-                    elif element.tag == 'h5':
-                        in_portfolio = True  # Start portfolio section
                     else:
                         in_header = False
                     
                     last_was_heading = True
                     
                 elif element.tag == 'p':
-                    # Skip paragraphs that are inside blockquotes - they're handled by the blockquote processor
-                    if in_blockquote:
-                        continue
-
-                    # Process all other paragraphs
                     text = process_inline_text(element)
                     
                     # Check for signature section
@@ -307,11 +256,7 @@ def convert_markdown_to_pdf(
                             if line.strip():
                                 elements.append(Paragraph(line.strip(), styles['Signature']))
                     else:
-                        # Regular paragraphs should align with left margin unless in portfolio
-                        if in_portfolio:
-                            elements.append(Paragraph(text, styles['PortfolioText']))
-                        else:
-                            elements.append(Paragraph(text, styles['Body']))
+                        elements.append(Paragraph(text, styles['Body']))
                     last_was_heading = False
                     
                 elif element.tag == 'ul':
@@ -319,39 +264,18 @@ def convert_markdown_to_pdf(
                     for li in element.findall('li'):
                         text = process_inline_text(li)
                         if text.strip():
-                            list_items.append(Paragraph('• ' + text.strip(), 
-                                styles['PortfolioListItem'] if in_portfolio else styles['ListItem']
-                            ))
+                            list_items.append(Paragraph('• ' + text.strip(), styles['ListItem']))
                     # Add all list items
                     elements.extend(list_items)
                     # Add space after the whole list
                     if list_items:  # Only add space if list wasn't empty
                         elements.append(Spacer(1, em_to_pt(0.8)))
                     last_was_heading = False
-
-                elif element.tag == 'blockquote':
-                    # Process blockquote content
-                    text = ''
-                    p_elements = element.findall('p')
-                    if p_elements:
-                        # Get text from all paragraphs in the blockquote
-                        text = ' '.join(process_inline_text(p) for p in p_elements)
-                    elif element.text:
-                        text = element.text
-                    
-                    if text.strip():
-                        # All blockquotes get the big text treatment
-                        elements.append(Paragraph(text.strip(), styles['Blockquote']))
-                    last_was_heading = False
                     
                 elif element.tag == 'pre':
                     # Handle code blocks properly
                     code = element.find('code')
                     if code is not None:
-                        # Get language class if specified
-                        classes = code.get('class', '').split()
-                        lang = next((c.replace('language-', '') for c in classes if c.startswith('language-')), '')
-                        
                         # Get the code text
                         text = code.text.strip('`') if code.text else ''
                         
@@ -370,10 +294,6 @@ def convert_markdown_to_pdf(
                     else:
                         text = element.text.strip('`') if element.text else ''
                         elements.append(Paragraph(text, styles['Pre']))
-                    last_was_heading = False
-                    
-                elif element.tag == 'hr':
-                    elements.append(Spacer(1, inch/4))
                     last_was_heading = False
                     
                 elif element.tag == 'img':
