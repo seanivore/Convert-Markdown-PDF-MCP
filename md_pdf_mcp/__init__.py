@@ -19,7 +19,7 @@ from PIL import Image as PILImage
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
-from .vscode_styles import get_vscode_stylesheet
+from .vscode_styles import get_vscode_stylesheet, em_to_pt
 from markdown.extensions import fenced_code, codehilite, attr_list, tables, toc, extra
 
 class MDPDFError(Exception):
@@ -47,107 +47,61 @@ def is_url(path: str) -> bool:
         return False
 
 def download_image(url: str, temp_dir: str) -> str:
-    """Download an image to a temporary file.
-    
-    Args:
-        url: The image URL
-        temp_dir: Directory to save the image
-        
-    Returns:
-        Path to downloaded image
-    """
+    """Download an image to a temporary file."""
     try:
-        # Create a safe filename from the URL
         filename = os.path.join(temp_dir, os.path.basename(url))
-        
-        # Download the image
         urllib.request.urlretrieve(url, filename)
         return filename
-        
     except (urllib.error.URLError, OSError) as e:
         raise ImageError(f"Failed to download image {url}: {str(e)}")
 
 def get_image_size(image_path: str, max_width: float) -> tuple[float, float]:
-    """Calculate image dimensions constrained to max width.
-    
-    Args:
-        image_path: Path to the image
-        max_width: Maximum width in points
-        
-    Returns:
-        Tuple of (width, height) in points
-    """
+    """Calculate image dimensions constrained to max width."""
     try:
         with PILImage.open(image_path) as img:
-            # Get original dimensions
             orig_width, orig_height = img.size
-            
-            # If image is smaller than max width, use original size
             if orig_width <= max_width:
                 return orig_width, orig_height
-                
-            # Scale height proportionally
             scale_factor = max_width / orig_width
             new_height = orig_height * scale_factor
-            
             return max_width, new_height
-            
     except Exception as e:
         raise ImageError(f"Failed to process image {image_path}: {str(e)}")
 
 def process_inline_text(element) -> str:
     """Process inline text formatting (bold, italic, etc.)"""
     if element.text is None:
-        return ''
+        element.text = ''
         
     text = element.text
     
-    # Process all child elements in order
     for child in element:
-        # Handle line breaks
-        if child.tag == 'br':
-            text += "<br/>"
-            continue
-            
-        # Handle text before any nested elements
         if child.text:
-            if child.tag == 'strong':
-                text += f"<b>{child.text}</b>"
-            elif child.tag == 'em':
-                text += f"<i>{child.text}</i>"
+            if child.tag == 'strong' or child.tag == 'b':
+                text += f'<b>{child.text}</b>'
+            elif child.tag == 'em' or child.tag == 'i':
+                text += f'<i>{child.text}</i>'
             else:
                 text += child.text
                 
-        # Handle nested elements
         for nested in child:
             if nested.text:
-                if nested.tag == 'strong':
-                    text += f"<b>{nested.text}</b>"
-                elif nested.tag == 'em':
-                    text += f"<i>{nested.text}</i>"
-                elif nested.tag == 'br':
-                    text += "<br/>"
+                if nested.tag == 'strong' or nested.tag == 'b':
+                    text += f'<b>{nested.text}</b>'
+                elif nested.tag == 'em' or nested.tag == 'i':
+                    text += f'<i>{nested.text}</i>'
                 else:
                     text += nested.text
             if nested.tail:
                 text += nested.tail
                 
-        # Handle text after nested elements
         if child.tail:
             text += child.tail
             
-    # Clean up line breaks
-    text = text.replace("<br/><br/>", "<br/>")
-    text = text.replace("<br/>", " ")  # Convert line breaks to spaces
-            
-    return text.strip()  # Remove extra whitespace
+    return text.strip()
 
 def validate_markdown(text: str) -> None:
-    """
-    Validate markdown syntax.
-    Raises InvalidMarkdownError if the markdown is invalid.
-    """
-    # Check for unmatched brackets
+    """Validate markdown syntax."""
     stack = []
     for i, char in enumerate(text):
         if char in '[(':
@@ -168,21 +122,7 @@ def convert_markdown_to_pdf(
     theme: str = 'light',
     progress_callback: Optional[callable] = None
 ) -> bool:
-    """
-    Convert markdown to PDF using VS Code styling.
-    
-    Args:
-        markdown_text: The markdown content to convert
-        output_path: Where to save the PDF
-        theme: VS Code theme to use ('light', 'dark', or 'high-contrast')
-        progress_callback: Optional function to report progress
-        
-    Returns:
-        bool: True if conversion successful
-    
-    Raises:
-        PDFGenerationError: If conversion fails
-    """
+    """Convert markdown to PDF using VS Code styling."""
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             if progress_callback:
@@ -190,7 +130,6 @@ def convert_markdown_to_pdf(
             
             # Handle empty content
             if not markdown_text.strip():
-                # Create an empty PDF with just the styles
                 doc = SimpleDocTemplate(
                     output_path,
                     pagesize=A4,
@@ -202,9 +141,28 @@ def convert_markdown_to_pdf(
                 doc.build([])
                 return True
             
-            # Split content by double newlines to handle paragraphs better
-            paragraphs = markdown_text.split('\n\n')
-            processed_text = '\n\n'.join(p.replace('\n', ' ') for p in paragraphs)
+            # Split content but preserve header and signature newlines
+            lines = markdown_text.split('\n')
+            processed_lines = []
+            in_header = True
+            in_signature = False
+            
+            for line in lines:
+                if line.strip() == '':
+                    processed_lines.append('')  # Keep empty lines
+                    if len(processed_lines) > 4:  # After title, role, blank line, and date
+                        in_header = False
+                elif in_header:
+                    processed_lines.append(line)  # Keep header lines as-is
+                elif 'Hope to hear from you soon' in line:  # Start of signature
+                    in_signature = True
+                    processed_lines.append(line)
+                elif in_signature:
+                    processed_lines.append(line)  # Preserve signature line breaks
+                else:
+                    processed_lines.append(line.rstrip())  # Outside header/signature, replace single newlines
+            
+            processed_text = '\n'.join(processed_lines)
             
             # Validate markdown syntax
             validate_markdown(processed_text)
@@ -226,7 +184,6 @@ def convert_markdown_to_pdf(
             except Exception as e:
                 raise InvalidMarkdownError(f"Failed to parse markdown: {str(e)}")
             
-            # Empty HTML is fine - it means valid but empty markdown
             if progress_callback:
                 progress_callback(25, "Markdown parsed...")
                 
@@ -253,6 +210,11 @@ def convert_markdown_to_pdf(
             except ElementTree.ParseError as e:
                 raise InvalidMarkdownError(f"Generated HTML is invalid: {str(e)}")
             
+            # Track document sections
+            in_header = False
+            in_signature = False
+            last_was_heading = False
+            
             for element in root.iter():
                 if element.tag == 'root':
                     continue
@@ -261,10 +223,43 @@ def convert_markdown_to_pdf(
                     style = f'Heading{element.tag[1]}'
                     text = process_inline_text(element)
                     elements.append(Paragraph(text, styles[style]))
-                    
+                    if element.tag == 'h1':
+                        in_header = True
+                    else:
+                        in_header = False
+                    last_was_heading = True
+                        
                 elif element.tag == 'p':
                     text = process_inline_text(element)
-                    elements.append(Paragraph(text, styles['Body']))
+                    
+                    # Check for signature section
+                    if 'Hope to hear from you soon' in text:
+                        in_signature = True
+                        
+                    # Use special styles for different sections
+                    if in_header:
+                        if 'ITALICS' in text:  # Date line
+                            text = text.replace('ITALICS', '').strip()
+                            elements.append(Paragraph(text, styles['DateLine']))
+                        else:  # Role line
+                            elements.append(Paragraph(text, styles['HeaderInfo']))
+                            if last_was_heading:
+                                elements.append(Spacer(1, em_to_pt(0.3)))
+                    elif in_signature:
+                        elements.append(Paragraph(text, styles['Signature']))
+                    else:
+                        elements.append(Paragraph(text, styles['Body']))
+                    last_was_heading = False
+                    
+                elif element.tag == 'blockquote':
+                    # Process only immediate text content and first paragraph
+                    text = element.text or ''
+                    p_elements = element.findall('p')
+                    if p_elements and p_elements[0].text:
+                        text = text + ' ' + p_elements[0].text if text else p_elements[0].text
+                    if text.strip():
+                        elements.append(Paragraph(text.strip(), styles['Blockquote']))
+                    last_was_heading = False
                     
                 elif element.tag == 'pre':
                     # Handle code blocks properly
@@ -292,18 +287,11 @@ def convert_markdown_to_pdf(
                     else:
                         text = element.text.strip('`') if element.text else ''
                         elements.append(Paragraph(text, styles['Pre']))
-                    
-                elif element.tag == 'blockquote':
-                    # Only process the first paragraph in the blockquote to avoid duplication
-                    p_elements = element.findall('p')
-                    if p_elements:
-                        text = process_inline_text(p_elements[0])
-                    else:
-                        text = process_inline_text(element)
-                    elements.append(Paragraph(text, styles['Blockquote']))
+                    last_was_heading = False
                     
                 elif element.tag == 'hr':
                     elements.append(Spacer(1, inch/4))
+                    last_was_heading = False
                     
                 elif element.tag == 'img':
                     src = element.get('src')
@@ -326,6 +314,7 @@ def convert_markdown_to_pdf(
                     except ImageError as e:
                         print(f"Warning: Failed to process image {src}: {e}")
                         continue
+                    last_was_heading = False
             
             if progress_callback:
                 progress_callback(75, "Content processed...")

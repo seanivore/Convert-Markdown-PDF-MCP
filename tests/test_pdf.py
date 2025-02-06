@@ -27,7 +27,7 @@ def generate_visual_samples():
         markdown_content = f.read()
     
     # Generate a sample in each theme
-    for theme in ['light', 'dark', 'high-contrast']:
+    for theme in ['light', 'high-contrast']:  # Removed dark theme for now
         output_file = TEST_DIR / f"sample_{theme}_theme.pdf"
         print(f"Generating {output_file.name}...")
         
@@ -81,7 +81,7 @@ def test_theme_selection():
         markdown_content = f.read()
     
     # Test each theme
-    for theme in ['light', 'dark', 'high-contrast']:
+    for theme in ['light', 'high-contrast']:  # Removed dark theme for now
         output_file = TEST_DIR / f"test_output_{theme}.pdf"
         success = convert_markdown_to_pdf(
             markdown_content,

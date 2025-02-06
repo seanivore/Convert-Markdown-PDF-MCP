@@ -1,5 +1,6 @@
 # Cover Letter, Sean Horvath H1
 **Creative Director at Beam - BOLD TEXT**
+
 *Thursday, February 6, 2025 ITALICS*
 
 Dear Beam Team,

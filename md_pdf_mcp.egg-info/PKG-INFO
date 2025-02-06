@@ -1,6 +1,15 @@
 Metadata-Version: 2.2
 Name: md_pdf_mcp
 Version: 0.1.0
-Requires-Dist: markdown
-Requires-Dist: reportlab
+Requires-Python: >=3.6
+Requires-Dist: markdown>=3.7
+Requires-Dist: reportlab>=4.3.0
+Requires-Dist: pillow>=9.0.0
+Requires-Dist: setuptools>=69.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.3.4; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: black>=24.2.0; extra == "dev"
+Dynamic: provides-extra
 Dynamic: requires-dist
+Dynamic: requires-python
