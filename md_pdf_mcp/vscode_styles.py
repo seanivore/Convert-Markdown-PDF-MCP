@@ -43,6 +43,7 @@ pdfmetrics.registerFont(TTFont('BerninoSans-Condensed', 'fonts/TTF/Bernino Sans-
 pdfmetrics.registerFont(TTFont('BerninoSans-CondensedLight', 'fonts/TTF/Bernino Sans-Condensed Light.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-Narrow', 'fonts/TTF/Bernino Sans-Narrow Regular.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-NarrowBold', 'fonts/TTF/Bernino Sans-Narrow Bold.ttf'))
+pdfmetrics.registerFont(TTFont('BerninaSans-NarrowExtrabold', 'fonts/TTF/Bernina Sans-Narrow Extrabold.ttf'))
 
 def px_to_pt(px: float) -> float:
     """Convert pixels to points (1px = 0.75pt)"""
@@ -108,12 +109,9 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         parent=styles['Body'],
         fontName='BerninaSans-CompressedBold',
         fontSize=px_to_pt(48),  # Back to original size
-        leading=em_to_pt(8.0),  # Keep large line height for glyphs
+        leading=em_to_pt(3.0),  # Increased to give room for compressed font glyphs
         spaceBefore=em_to_pt(0.2),
-        spaceAfter=em_to_pt(0.3),  # Reduced to snug H2 closer
-        borderBottomWidth=2,
-        borderBottomColor=colors['text'],
-        borderPadding=(0, 0, em_to_pt(0.3), 0),  # Adjusted for underline
+        spaceAfter=0,  # No space after H1 to snug up H2
     ))
 
     # H2 - Role/Bold Text
@@ -123,8 +121,8 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         fontName='BerninoSans-CondensedBold',
         fontSize=px_to_pt(16),  # 12pt
         leading=em_to_pt(1.15),
-        spaceBefore=em_to_pt(0.2),  # Minimal space from H1 underline
-        spaceAfter=em_to_pt(1.0),  # Added space before H3
+        spaceBefore=em_to_pt(0.2),  # Minimal space from H1
+        spaceAfter=em_to_pt(2.0),  # Increased space before H3 for letter-like spacing
     ))
 
     # H3 - Date/Italics
@@ -132,10 +130,10 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         name='Heading3',
         parent=styles['Body'],
         fontName='BerninoSans-LightItalic',
-        fontSize=px_to_pt(16),  # 12pt
+        fontSize=px_to_pt(14),  # Reduced from 16pt to 14pt
         leading=em_to_pt(1.2),
-        spaceBefore=em_to_pt(0.2),  # Minimal space since H2 has spaceAfter
-        spaceAfter=em_to_pt(1.5),  # Space before body text
+        spaceBefore=0,  # No extra space since H2 has spaceAfter
+        spaceAfter=em_to_pt(3.0),  # Generous space before body text starts
     ))
 
     # H4 - Section Headers
@@ -143,7 +141,7 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         name='Heading4',
         parent=styles['Body'],
         fontName='BerninaSans-CondensedBold',
-        fontSize=px_to_pt(24),  # 18pt
+        fontSize=px_to_pt(18),  # Reduced from 24pt to 18pt
         leading=em_to_pt(1.2),
         spaceBefore=em_to_pt(1.5),  # More space before new sections
         spaceAfter=em_to_pt(1.0),   # Space before H5
@@ -170,16 +168,20 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         spaceAfter=em_to_pt(0.4),  # More space after H5
     ))
 
-    # Lists - clean indentation with condensed light font
+    # Lists - clean indentation with Narrow Extrabold and increased tracking
     styles.add(ParagraphStyle(
         name='ListItem',
         parent=styles['Body'],
-        fontName='BerninoSans-CondensedLight',  # Lighter condensed font for bullets
+        fontName='BerninaSans-NarrowExtrabold',  # Using the exact Bernina variant
+        fontSize=px_to_pt(11),  # Same as body text
         leftIndent=em_to_pt(1.2),
         bulletIndent=em_to_pt(0.8),
-        spaceBefore=0,          # No space between bullets
-        spaceAfter=0,          # No space between bullets
-        leading=em_to_pt(1.1), # Tighter line spacing for bullets
+        spaceBefore=em_to_pt(0.2),
+        spaceAfter=em_to_pt(0.2),
+        leading=13,           # Exact 13pt line spacing
+        wordSpacing=2,
+        tracking=110,        # Increased tracking to 110
+        textTransform='uppercase',  # Force all caps
     ))
 
     # Blockquote replaced with horizontal line style
