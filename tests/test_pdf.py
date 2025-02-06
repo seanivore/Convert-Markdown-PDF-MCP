@@ -12,7 +12,7 @@ from md_pdf_mcp import convert_markdown_to_pdf, MDPDFError
 
 # Get the tests directory path
 TEST_DIR = Path(__file__).parent
-SAMPLE_MD = TEST_DIR / "test_styling.md"
+SAMPLE_MD = TEST_DIR / "cv-text-test.md"  # Changed to use cover letter
 OUTPUT_PDF = TEST_DIR / "test_output.pdf"
 
 def generate_visual_samples():

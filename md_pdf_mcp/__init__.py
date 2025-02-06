@@ -20,6 +20,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Tabl
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from .vscode_styles import get_vscode_stylesheet
+from markdown.extensions import fenced_code, codehilite, attr_list, tables, toc, extra
 
 class MDPDFError(Exception):
     """Base exception for MD-PDF-MCP"""
@@ -94,6 +95,73 @@ def get_image_size(image_path: str, max_width: float) -> tuple[float, float]:
     except Exception as e:
         raise ImageError(f"Failed to process image {image_path}: {str(e)}")
 
+def process_inline_text(element) -> str:
+    """Process inline text formatting (bold, italic, etc.)"""
+    if element.text is None:
+        return ''
+        
+    text = element.text
+    
+    # Process all child elements in order
+    for child in element:
+        # Handle line breaks
+        if child.tag == 'br':
+            text += "<br/>"
+            continue
+            
+        # Handle text before any nested elements
+        if child.text:
+            if child.tag == 'strong':
+                text += f"<b>{child.text}</b>"
+            elif child.tag == 'em':
+                text += f"<i>{child.text}</i>"
+            else:
+                text += child.text
+                
+        # Handle nested elements
+        for nested in child:
+            if nested.text:
+                if nested.tag == 'strong':
+                    text += f"<b>{nested.text}</b>"
+                elif nested.tag == 'em':
+                    text += f"<i>{nested.text}</i>"
+                elif nested.tag == 'br':
+                    text += "<br/>"
+                else:
+                    text += nested.text
+            if nested.tail:
+                text += nested.tail
+                
+        # Handle text after nested elements
+        if child.tail:
+            text += child.tail
+            
+    # Clean up line breaks
+    text = text.replace("<br/><br/>", "<br/>")
+    text = text.replace("<br/>", " ")  # Convert line breaks to spaces
+            
+    return text.strip()  # Remove extra whitespace
+
+def validate_markdown(text: str) -> None:
+    """
+    Validate markdown syntax.
+    Raises InvalidMarkdownError if the markdown is invalid.
+    """
+    # Check for unmatched brackets
+    stack = []
+    for i, char in enumerate(text):
+        if char in '[(':
+            stack.append((char, i))
+        elif char in '])':
+            if not stack:
+                raise InvalidMarkdownError(f"Unmatched closing bracket at position {i}")
+            last_char, _ = stack.pop()
+            if (char == ']' and last_char != '[') or (char == ')' and last_char != '('):
+                raise InvalidMarkdownError(f"Mismatched brackets at position {i}")
+    if stack:
+        pos = stack[-1][1]
+        raise InvalidMarkdownError(f"Unclosed bracket at position {pos}")
+
 def convert_markdown_to_pdf(
     markdown_text: str,
     output_path: str,
@@ -116,18 +184,53 @@ def convert_markdown_to_pdf(
         PDFGenerationError: If conversion fails
     """
     try:
-        # Create temporary directory for downloaded images
         with tempfile.TemporaryDirectory() as temp_dir:
             if progress_callback:
                 progress_callback(0, "Starting conversion...")
             
-            # 1. Parse markdown to HTML
-            html = markdown.markdown(markdown_text)
+            # Handle empty content
+            if not markdown_text.strip():
+                # Create an empty PDF with just the styles
+                doc = SimpleDocTemplate(
+                    output_path,
+                    pagesize=A4,
+                    rightMargin=72,
+                    leftMargin=72,
+                    topMargin=72,
+                    bottomMargin=72
+                )
+                doc.build([])
+                return True
             
+            # Split content by double newlines to handle paragraphs better
+            paragraphs = markdown_text.split('\n\n')
+            processed_text = '\n\n'.join(p.replace('\n', ' ') for p in paragraphs)
+            
+            # Validate markdown syntax
+            validate_markdown(processed_text)
+            
+            try:
+                # Parse markdown to HTML with extensions
+                html = markdown.markdown(
+                    processed_text,
+                    extensions=[
+                        'fenced_code',
+                        'codehilite',
+                        'attr_list',
+                        'tables',
+                        'toc',
+                        'extra',
+                    ],
+                    output_format='xhtml'
+                )
+            except Exception as e:
+                raise InvalidMarkdownError(f"Failed to parse markdown: {str(e)}")
+            
+            # Empty HTML is fine - it means valid but empty markdown
             if progress_callback:
                 progress_callback(25, "Markdown parsed...")
                 
-            # 2. Create PDF document with styles
+            # Create PDF document with styles
             doc = SimpleDocTemplate(
                 output_path,
                 pagesize=A4,
@@ -143,9 +246,12 @@ def convert_markdown_to_pdf(
             if progress_callback:
                 progress_callback(50, "Styles applied...")
                 
-            # 3. Convert HTML to flowables
+            # Convert HTML to flowables
             elements = []
-            root = ElementTree.fromstring(f"<root>{html}</root>")
+            try:
+                root = ElementTree.fromstring(f"<root>{html}</root>")
+            except ElementTree.ParseError as e:
+                raise InvalidMarkdownError(f"Generated HTML is invalid: {str(e)}")
             
             for element in root.iter():
                 if element.tag == 'root':
@@ -153,16 +259,48 @@ def convert_markdown_to_pdf(
                     
                 if element.tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
                     style = f'Heading{element.tag[1]}'
-                    elements.append(Paragraph(element.text or '', styles[style]))
+                    text = process_inline_text(element)
+                    elements.append(Paragraph(text, styles[style]))
                     
                 elif element.tag == 'p':
-                    elements.append(Paragraph(element.text or '', styles['Body']))
+                    text = process_inline_text(element)
+                    elements.append(Paragraph(text, styles['Body']))
                     
                 elif element.tag == 'pre':
-                    elements.append(Paragraph(element.text or '', styles['Pre']))
+                    # Handle code blocks properly
+                    code = element.find('code')
+                    if code is not None:
+                        # Get language class if specified
+                        classes = code.get('class', '').split()
+                        lang = next((c.replace('language-', '') for c in classes if c.startswith('language-')), '')
+                        
+                        # Get the code text
+                        text = code.text.strip('`') if code.text else ''
+                        
+                        # Split into lines and process each line
+                        lines = text.split('\n')
+                        processed_lines = []
+                        
+                        for line in lines:
+                            line = line.rstrip()  # Remove trailing whitespace
+                            if line.lstrip().startswith('#'):  # Python comment
+                                processed_lines.append(Paragraph(line, styles['CodeComment']))
+                            else:
+                                processed_lines.append(Paragraph(line, styles['Pre']))
+                        
+                        elements.extend(processed_lines)
+                    else:
+                        text = element.text.strip('`') if element.text else ''
+                        elements.append(Paragraph(text, styles['Pre']))
                     
                 elif element.tag == 'blockquote':
-                    elements.append(Paragraph(element.text or '', styles['Blockquote']))
+                    # Only process the first paragraph in the blockquote to avoid duplication
+                    p_elements = element.findall('p')
+                    if p_elements:
+                        text = process_inline_text(p_elements[0])
+                    else:
+                        text = process_inline_text(element)
+                    elements.append(Paragraph(text, styles['Blockquote']))
                     
                 elif element.tag == 'hr':
                     elements.append(Spacer(1, inch/4))
@@ -192,7 +330,7 @@ def convert_markdown_to_pdf(
             if progress_callback:
                 progress_callback(75, "Content processed...")
                 
-            # 4. Generate PDF
+            # Generate PDF
             doc.build(elements)
             
             if progress_callback:
