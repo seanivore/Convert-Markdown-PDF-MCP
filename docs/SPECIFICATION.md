@@ -60,8 +60,9 @@ VS Code's markdown.css styles are converted to ReportLab's format while maintain
 	2. Run `uvx create-mcp-server`
 	3. Follow the step by step instructions. 
 
-- Python MCP SDK README ToC Request Files You Need: 
+- Python MCP SDK README ToC Request Files You Need — OR try llm-context tool: 
 `~/Development/mcp-guides-docs-framework/python-sdk/README.md`
+Command Tool Guide: `~/Development/_.llm-context.md`
 
 - Inspect Server Connection & Debug MCP Workflow
 `tests/inspector.mdx`
@@ -77,4 +78,7 @@ VS Code's markdown.css styles are converted to ReportLab's format while maintain
 `/docs/concepts/transports.mdx`
 
 - Guide for LLMs Building MCP Servers: 
-`~/Development/_llms-full.txt`
+`~/Development/_llms-dev-mcps.txt`
+
+- See if Fetch MCP is potentially better than the *web-browser-mcp-server* 
+`/Users/seanivore/Development/fetch-mcp/README.md`
