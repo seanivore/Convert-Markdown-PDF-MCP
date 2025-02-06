@@ -1,0 +1,6 @@
+Metadata-Version: 2.2
+Name: md_pdf_mcp
+Version: 0.1.0
+Requires-Dist: markdown
+Requires-Dist: reportlab
+Dynamic: requires-dist

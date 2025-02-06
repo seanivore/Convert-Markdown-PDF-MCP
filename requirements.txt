@@ -1,0 +1,9 @@
+# Core dependencies
+markdown==3.7
+reportlab==4.3.0
+pillow>=9.0.0  # Required by ReportLab
+
+# Development dependencies
+pytest==8.3.4
+pytest-cov==4.1.0  # For coverage reports
+black==24.2.0     # For code formatting
