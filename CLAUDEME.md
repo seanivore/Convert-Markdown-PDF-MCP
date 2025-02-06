@@ -53,32 +53,42 @@ All these changes are focused on getting the header spacing right and making the
 
 Here's a summary of the typography changes we implemented:
 
-1. Font Family Implementation:
+1. Font Family Implementation — *needed something that had various widths and weights* 
    - H1: BerninaSans-CompressedBold (with 3x line height)
    - H2: BerninoSans-CondensedBold
    - H3: BerninoSans-LightItalic
    - H4: BerninaSans-CondensedBold
    - H5: BerninaSans-Narrow
    - Body: BerninoSans (Regular)
+     > `might actually want to try something slightly more narrow but only a tiny bit` 
 
-2. Size Adjustments:
-   - H1: 48px (36pt) with tripled line height (em_to_pt(3.0))
+2. Size Adjustments — *necessary because of the new font family and better organized header hierarchy*
+   - H1: 48px (36pt) with tripled line height: em_to_pt(3.0) 
+     > `and the line height is still now showing the underline` 
    - H2: 16px (12pt)
+     > `looks good now but need to make sure it stay snug under the underline of H1` 
    - H3: 16px (12pt)
+     > `might need to be smaller when the body text is made smaller` 
    - H4: 24px (18pt)
+     > `probably could do 17pt` 
    - H5: 14px (reduced from 21.33px)
+     > `wow I said if it is 16 make it 14; let's try 16` 
    - Body: 12.83px (reduced from 13.33px)
+     > `still too large and spacing needs to be smaller`
 
-3. Spacing Changes:
-   - H1: Added bottom border (4px) with padding
-   - H2: Minimal space after H1 underline (em_to_pt(0.2))
-   - H3: Space before body text (em_to_pt(1.5))
-   - H4: Half normal space before (em_to_pt(0.5)), double space after (em_to_pt(1.0))
-   - H5: Normal space before (em_to_pt(0.8)), minimal after (em_to_pt(0.2))
-   - Body: Maintained paragraph spacing (em_to_pt(0.8))
+3. Spacing Changes — *needed to make the header hierarchy more sensible*
+   - H1: Added bottom border (4px) with padding 
+    	> `cannot yet see this in the PDF, but it is there` 
+   - H2: Minimal space after H1 underline: em_to_pt(0.2) 
+   - H3: Space before body text: em_to_pt(1.5) 
+   - H4: Half normal space before: em_to_pt(0.5), double space after: em_to_pt(1.0) 
+   - H5: Normal space before: em_to_pt(0.8), minimal after: em_to_pt(0.2) 
+   - Body: Maintained paragraph spacing: em_to_pt(0.8) 
+		> `we need to make the line spacing smaller, but keep the spacing between paragraphs`
 
 4. Style Updates:
    - Replaced blockquote boxes with horizontal lines
+     > `if we "did" this then it is not visible...` 
    - Updated border colors and padding for better visual hierarchy
    - Maintained consistent text alignment (TA_LEFT)
 
@@ -87,11 +97,10 @@ Here's a summary of the typography changes we implemented:
    - Adjust body text line spacing
    - Implement bullet point lists
    - Increase H5 by 1pt (to 15pt)
-   - Clean up duplicate body text
-   - Add left-side decorative lines
+   - Clean up duplicate body text in the 'Portfolio Sections' 
+   - Add left-side decorative lines of the 'Portfolio Sections'
 
 This setup preserves the Bernina/Bernino Sans family characteristics while maintaining readability and visual hierarchy.
-
 
 ## Next Steps
 

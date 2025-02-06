@@ -19,7 +19,8 @@ from PIL import Image as PILImage
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
-from .vscode_styles import get_vscode_stylesheet, em_to_pt
+from reportlab.lib.styles import ParagraphStyle
+from .vscode_styles import get_vscode_stylesheet, em_to_pt, THEME_COLORS
 from markdown.extensions import fenced_code, codehilite, attr_list, tables, toc, extra
 
 class MDPDFError(Exception):
@@ -213,6 +214,7 @@ def convert_markdown_to_pdf(
             # Track document sections
             in_header = False
             in_signature = False
+            in_portfolio = False
             last_was_heading = False
             
             for element in root.iter():
@@ -249,16 +251,19 @@ def convert_markdown_to_pdf(
                     
                     if element.tag == 'h1':
                         in_header = True
+                        in_portfolio = False
+                    elif element.tag == 'h4':
+                        in_portfolio = False  # Reset for new major section
+                    elif element.tag == 'h5':
+                        in_portfolio = True  # Start portfolio section
                     else:
                         in_header = False
                     last_was_heading = True
                         
                 elif element.tag == 'p':
                     # Skip paragraphs that are inside blockquotes
-                    # TODO: Fix blockquote parent check
-                    # parent = root.find('.//*[.//p="%s"]' % element)
-                    # if parent is not None and parent.tag == 'blockquote':
-                    #     continue
+                    if in_portfolio:
+                        continue
                         
                     text = process_inline_text(element)
                     
@@ -285,6 +290,29 @@ def convert_markdown_to_pdf(
                         elements.append(Paragraph(text, styles['Body']))
                     last_was_heading = False
                     
+                elif element.tag == 'ul':
+                    list_items = []
+                    for li in element.findall('li'):
+                        text = process_inline_text(li)
+                        if text.strip():
+                            colors = THEME_COLORS[theme]
+                            list_items.append(Paragraph('• ' + text.strip(), 
+                                ParagraphStyle(
+                                    'PortfolioListItem' if in_portfolio else 'ListItem',
+                                    parent=styles['ListItem'],
+                                    borderLeftWidth=4 if in_portfolio else 0,
+                                    borderLeftColor=colors['link'] if in_portfolio else None,
+                                    borderLeftPadding=em_to_pt(0.5) if in_portfolio else 0,
+                                    leftIndent=em_to_pt(2.0) if in_portfolio else em_to_pt(1.2)
+                                )
+                            ))
+                    # Add all list items
+                    elements.extend(list_items)
+                    # Add space after the whole list
+                    if list_items:  # Only add space if list wasn't empty
+                        elements.append(Spacer(1, em_to_pt(0.8)))
+                    last_was_heading = False
+
                 elif element.tag == 'blockquote':
                     # Process blockquote content
                     text = ''
@@ -296,7 +324,10 @@ def convert_markdown_to_pdf(
                         text = element.text
                     
                     if text.strip():
-                        elements.append(Paragraph(text.strip(), styles['Blockquote']))
+                        if in_portfolio:
+                            elements.append(Paragraph(text.strip(), styles['PortfolioBlock']))
+                        else:
+                            elements.append(Paragraph(text.strip(), styles['Blockquote']))
                     last_was_heading = False
                     
                 elif element.tag == 'pre':

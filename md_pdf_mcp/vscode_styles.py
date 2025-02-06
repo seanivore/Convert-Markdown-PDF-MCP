@@ -40,6 +40,7 @@ pdfmetrics.registerFont(TTFont('BerninaSans-Condensed', 'fonts/TTF/Bernina Sans-
 pdfmetrics.registerFont(TTFont('BerninoSans-Compressed', 'fonts/TTF/Bernino Sans-Compressed Regular.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-CompressedBold', 'fonts/TTF/Bernino Sans-Compressed Bold.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-Condensed', 'fonts/TTF/Bernino Sans-Condensed Regular.ttf'))
+pdfmetrics.registerFont(TTFont('BerninoSans-CondensedLight', 'fonts/TTF/Bernino Sans-Condensed Light.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-Narrow', 'fonts/TTF/Bernino Sans-Narrow Regular.ttf'))
 pdfmetrics.registerFont(TTFont('BerninoSans-NarrowBold', 'fonts/TTF/Bernino Sans-Narrow Bold.ttf'))
 
@@ -90,12 +91,12 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
     styles.add(ParagraphStyle(
         name='Body',
         fontName='BerninoSans',
-        fontSize=px_to_pt(12.83),  # Reduced by 0.5pt from 13.33
-        leading=px_to_pt(32),      # 24pt line spacing
+        fontSize=px_to_pt(11),     # Reduced for better readability
+        leading=em_to_pt(1.2),     # Tighter line spacing
         textColor=colors['text'],
         backColor=colors['background'],
         alignment=TA_LEFT,
-        spaceAfter=em_to_pt(0.8),
+        spaceAfter=em_to_pt(1.0),  # Keep paragraph spacing wide
         firstLineIndent=0,
         bulletIndent=em_to_pt(0.5),
     ))
@@ -106,13 +107,13 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         name='Heading1',
         parent=styles['Body'],
         fontName='BerninaSans-CompressedBold',
-        fontSize=px_to_pt(48),  # 36pt
-        leading=em_to_pt(3.0),  # Tripled for better font display
+        fontSize=px_to_pt(48),  # Back to original size
+        leading=em_to_pt(8.0),  # Keep large line height for glyphs
         spaceBefore=em_to_pt(0.2),
-        spaceAfter=0,  # Removed since underline creates space
-        borderBottomWidth=4,
+        spaceAfter=em_to_pt(0.3),  # Reduced to snug H2 closer
+        borderBottomWidth=2,
         borderBottomColor=colors['text'],
-        borderPadding=(0, 0, em_to_pt(0.3), 0),  # Adjusted bottom padding
+        borderPadding=(0, 0, em_to_pt(0.3), 0),  # Adjusted for underline
     ))
 
     # H2 - Role/Bold Text
@@ -144,30 +145,41 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         fontName='BerninaSans-CondensedBold',
         fontSize=px_to_pt(24),  # 18pt
         leading=em_to_pt(1.2),
-        spaceBefore=em_to_pt(0.5),  # Half normal space
-        spaceAfter=em_to_pt(1.0),   # Double spaceBefore
+        spaceBefore=em_to_pt(1.5),  # More space before new sections
+        spaceAfter=em_to_pt(1.0),   # Space before H5
     ))
 
-    # H5 - Subsection Titles
+    # Portfolio section blocks
+    styles.add(ParagraphStyle(
+        name='PortfolioBlock',
+        parent=styles['Body'],
+        leftIndent=em_to_pt(1.0),  # Space for vertical line
+        borderLeftWidth=4,  # Thickness of line
+        borderLeftColor=colors['link'],  # VS Code's link blue
+        borderLeftPadding=em_to_pt(0.5),  # Space between line and text
+    ))
+
+    # H5 - Portfolio Section Headers
     styles.add(ParagraphStyle(
         name='Heading5',
-        parent=styles['Body'],
+        parent=styles['PortfolioBlock'],  # Inherit portfolio styling
         fontName='BerninaSans-Narrow',
-        fontSize=px_to_pt(14),  # Reduced from 21.33 to 14
+        fontSize=px_to_pt(16),  # Increased to 16pt as noted
         leading=em_to_pt(1.2),
         spaceBefore=em_to_pt(0.8),
-        spaceAfter=em_to_pt(0.2),
+        spaceAfter=em_to_pt(0.4),  # More space after H5
     ))
 
-    # Lists - clean indentation
+    # Lists - clean indentation with condensed light font
     styles.add(ParagraphStyle(
         name='ListItem',
         parent=styles['Body'],
+        fontName='BerninoSans-CondensedLight',  # Lighter condensed font for bullets
         leftIndent=em_to_pt(1.2),
         bulletIndent=em_to_pt(0.8),
-        spaceBefore=em_to_pt(0.2),
-        spaceAfter=em_to_pt(0.2),
-        leading=em_to_pt(1.2),
+        spaceBefore=0,          # No space between bullets
+        spaceAfter=0,          # No space between bullets
+        leading=em_to_pt(1.1), # Tighter line spacing for bullets
     ))
 
     # Blockquote replaced with horizontal line style
