@@ -17,5 +17,5 @@ setup(
             'black>=24.2.0',
         ]
     },
-    python_requires='>=3.6',
+    python_requires='>=3.13',  # Using latest Python features
 )

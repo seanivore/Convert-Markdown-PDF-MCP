@@ -5,4 +5,4 @@ with open('/Users/seanivore/Development/md-pdf-mcp/tests/cv-text-test.md', 'r') 
     content = f.read()
 
 # Convert to PDF
-convert_markdown_to_pdf(content, 'test_output.pdf', theme='high-contrast')
+convert_markdown_to_pdf(content, '/Users/seanivore/Development/md-pdf-mcp/tests/test_output.pdf', theme='high-contrast')

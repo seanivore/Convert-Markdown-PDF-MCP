@@ -1,7 +1,58 @@
 # MD-PDF-MCP Project Map
 
-## Current Status
-Project initialized with clean structure, focused on using ReportLab for direct MD→PDF conversion.
+## Recent Progress
+✅ Project cleanup
+- Removed redundant Python environments
+- Consolidated documentation
+- Standardized on Python 3.13
+- Cleaned up project structure
+
+## Current Focus
+### PDF Generation
+- [x] Basic markdown conversion
+- [x] Font integration
+- [x] Style framework
+- [ ] Typography refinement
+- [ ] Spacing adjustments
+
+### Testing
+- [x] Basic test framework
+- [x] Sample document (cv-text-test.md)
+- [ ] Edge cases
+- [ ] Visual regression tests
+
+## Next Steps
+1. Typography
+   - Fine-tune font sizes
+   - Adjust line spacing
+   - Perfect header hierarchy
+
+2. Layout
+   - Blockquote styling
+   - Portfolio section indentation
+   - List item spacing
+
+3. Polish
+   - Theme consistency
+   - Visual hierarchy
+   - Documentation updates
+
+## Key Files
+```
+md_pdf_mcp/
+├── __init__.py     # Core conversion logic
+├── vscode_styles.py # Typography & styling
+└── tests/
+    ├── convert.py      # Quick test script
+    ├── test_pdf.py     # Test suite
+    └── cv-text-test.md # Test document
+```
+
+## Development Tips
+1. Test changes with `python tests/convert.py`
+2. Check PDF output visually
+3. Compare with VS Code's rendering
+4. Update tests for new features
 
 ## High Priority Tasks
 

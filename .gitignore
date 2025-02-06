@@ -1,5 +1,10 @@
- Environment variables
-.env
+# Virtual environment
+venv/
+
+# Python build artifacts
+*.egg-info/
+__pycache__/
+*.pyc
 
 # Aider files
 .aider*
@@ -24,5 +29,4 @@ Thumbs.db
 *.swp
 *.swo
 *.code-workspac
-.env.example
 .md-pdf-mcp.code-workspace

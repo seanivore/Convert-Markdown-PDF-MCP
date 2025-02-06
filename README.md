@@ -19,14 +19,12 @@ git clone https://github.com/yourusername/md-pdf-mcp
 cd md-pdf-mcp
 
 # Set up environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+python -m venv ~/.venvs/md-pdf-mcp
+source ~/.venvs/md-pdf-mcp/bin/activate  # or `venv\Scripts\activate` on Windows
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Copy example environment file and edit as needed
-cp .env.example .env
+pip install -e .
 ```
 
 ## Usage
@@ -39,7 +37,30 @@ convert_markdown(
 ```
 
 ## Development
-- Python 3.10+
+
+### Running Tests
+Run all tests:
+```bash
+pytest tests/
+```
+
+Generate test PDFs (won't be auto-deleted):
+```bash
+python tests/test_pdf.py
+```
+
+### Development Tips
+1. The `tests/test_styling.md` file contains examples of all supported markdown elements
+2. Visual test PDFs are generated in the tests directory as:
+   - `sample_light_theme.pdf`
+   - `sample_high-contrast_theme.pdf`
+3. Use `black` for code formatting:
+```bash
+black md_pdf_mcp/ tests/
+```
+
+## Requirements
+- Python 3.13+
 - ReportLab for PDF generation
 - VS Code markdown styling
 - MCP server framework

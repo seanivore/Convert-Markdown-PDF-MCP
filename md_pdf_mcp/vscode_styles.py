@@ -88,30 +88,32 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
     styles = StyleSheet1()
     colors = THEME_COLORS[theme]
 
-    # Base style for body text
+    # Base style for normal document flow - everything aligns to left margin by default
     styles.add(ParagraphStyle(
         name='Body',
         fontName='BerninoSans',
-        fontSize=px_to_pt(11),     # Reduced for better readability
-        leading=em_to_pt(1.2),     # Tighter line spacing
+        fontSize=px_to_pt(11),
+        leading=em_to_pt(1.2),
         textColor=colors['text'],
         backColor=colors['background'],
         alignment=TA_LEFT,
-        spaceAfter=em_to_pt(1.0),  # Keep paragraph spacing wide
+        spaceAfter=em_to_pt(1.0),
         firstLineIndent=0,
+        leftIndent=0,          # Explicitly set to 0 to ensure left alignment
+        rightIndent=0,
         bulletIndent=em_to_pt(0.5),
     ))
 
-    # Document Hierarchy Styles
-    # H1 - Title
+    # Regular heading styles - all left aligned
     styles.add(ParagraphStyle(
         name='Heading1',
         parent=styles['Body'],
         fontName='BerninaSans-CompressedBold',
-        fontSize=px_to_pt(48),  # Back to original size
-        leading=em_to_pt(3.0),  # Increased to give room for compressed font glyphs
+        fontSize=px_to_pt(48),
+        leading=em_to_pt(3.0),
         spaceBefore=em_to_pt(0.2),
-        spaceAfter=0,  # No space after H1 to snug up H2
+        spaceAfter=0,
+        leftIndent=0,  # Explicit left alignment
     ))
 
     # H2 - Role/Bold Text
@@ -147,57 +149,123 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         spaceAfter=em_to_pt(1.0),   # Space before H5
     ))
 
-    # Portfolio section blocks
+    # Base style for nudged/callout blocks - MOVED UP before its children use it
     styles.add(ParagraphStyle(
-        name='PortfolioBlock',
+        name='CalloutBlock',
         parent=styles['Body'],
-        leftIndent=em_to_pt(1.0),  # Space for vertical line
-        borderLeftWidth=4,  # Thickness of line
-        borderLeftColor=colors['link'],  # VS Code's link blue
-        borderLeftPadding=em_to_pt(0.5),  # Space between line and text
+        fontSize=px_to_pt(50),          # Big text
+        textTransform='uppercase',      # ALL CAPS
+        leftIndent=px_to_pt(50),        # The nudge
+        borderLeftWidth=5,              # Vertical line
+        borderLeftColor=HexColor('#66e4b4'),  # Mint color
+        borderLeftPadding=px_to_pt(15), # Space after line
+        spaceBefore=px_to_pt(10),       # Vertical spacing
+        spaceAfter=px_to_pt(10),
+        keepTogether=True,              # Keep the block together
     ))
 
-    # H5 - Portfolio Section Headers
+    # H5 sections automatically get the callout treatment
     styles.add(ParagraphStyle(
         name='Heading5',
-        parent=styles['PortfolioBlock'],  # Inherit portfolio styling
+        parent=styles['CalloutBlock'],
         fontName='BerninaSans-Narrow',
-        fontSize=px_to_pt(16),  # Increased to 16pt as noted
-        leading=em_to_pt(1.2),
-        spaceBefore=em_to_pt(0.8),
-        spaceAfter=em_to_pt(0.4),  # More space after H5
+        fontSize=px_to_pt(16),          # Override font size
+        textTransform=None,             # Override uppercase
+        keepWithNext=True,              # Keep with content
     ))
 
-    # Lists - clean indentation with Narrow Extrabold and increased tracking
+    # Text within callout blocks
     styles.add(ParagraphStyle(
-        name='ListItem',
-        parent=styles['Body'],
-        fontName='BerninaSans-NarrowExtrabold',  # Using the exact Bernina variant
-        fontSize=px_to_pt(11),  # Same as body text
-        leftIndent=em_to_pt(1.2),
+        name='CalloutText',
+        parent=styles['CalloutBlock'],
+        fontName='BerninoSans',
+        fontSize=px_to_pt(11),          # Normal text size
+        textTransform=None,             # No uppercase
+        keepWithNext=False,
+    ))
+
+    # Lists inside callout blocks
+    styles.add(ParagraphStyle(
+        name='CalloutListItem',
+        parent=styles['CalloutBlock'],
+        fontName='BerninaSans-NarrowExtrabold',
+        fontSize=px_to_pt(11),
         bulletIndent=em_to_pt(0.8),
         spaceBefore=em_to_pt(0.2),
         spaceAfter=em_to_pt(0.2),
-        leading=13,           # Exact 13pt line spacing
+        leading=13,
         wordSpacing=2,
-        tracking=110,        # Increased tracking to 110
-        textTransform='uppercase',  # Force all caps
+        tracking=110,
+        textTransform='uppercase',
     ))
 
-    # Blockquote replaced with horizontal line style
+    # Regular list items - left aligned with document
+    styles.add(ParagraphStyle(
+        name='ListItem',
+        parent=styles['Body'],
+        fontName='BerninaSans-NarrowExtrabold',
+        fontSize=px_to_pt(11),
+        leftIndent=em_to_pt(1.2),       # Indent from left margin
+        bulletIndent=em_to_pt(0.8),
+        spaceBefore=em_to_pt(0.2),
+        spaceAfter=em_to_pt(0.2),
+        leading=13,
+        wordSpacing=2,
+        tracking=110,
+        textTransform='uppercase',
+    ))
+
+    # Blockquote style - big impactful text with vertical line
     styles.add(ParagraphStyle(
         name='Blockquote',
         parent=styles['Body'],
-        fontSize=px_to_pt(13.33),  # Same as body text
+        fontSize=px_to_pt(50),          # Big text
+        textTransform='uppercase',      # ALL CAPS
+        leftIndent=px_to_pt(50),        # The nudge
+        borderLeftWidth=5,              # Vertical line
+        borderLeftColor=HexColor('#66e4b4'),  # Mint color
+        borderLeftPadding=px_to_pt(15), # Space after line
+        spaceBefore=px_to_pt(10),       # Vertical spacing
+        spaceAfter=px_to_pt(10),
+        keepTogether=True,              # Keep the block together
+    ))
+
+    # Portfolio section base style
+    styles.add(ParagraphStyle(
+        name='PortfolioBlock',
+        parent=styles['Body'],
+        leftIndent=em_to_pt(1.5),       # Consistent indentation
+        borderLeftWidth=3,              # Thinner line
+        borderLeftColor=colors['link'],  # Different color
+        borderLeftPadding=em_to_pt(0.8),
+        spaceBefore=em_to_pt(1.0),
+        spaceAfter=0,
+        keepTogether=True,
+    ))
+
+    # Text within portfolio sections
+    styles.add(ParagraphStyle(
+        name='PortfolioText',
+        parent=styles['PortfolioBlock'],
+        fontName='BerninoSans',
+        fontSize=px_to_pt(11),
         leading=em_to_pt(1.2),
-        textColor=colors['text'],
-        borderTopWidth=1,
-        borderTopColor=colors['border'],
-        borderBottomWidth=1,
-        borderBottomColor=colors['border'],
-        borderPadding=(em_to_pt(0.5), 0, em_to_pt(0.5), 0),
-        spaceBefore=em_to_pt(0.3),
-        spaceAfter=em_to_pt(0.6),
+        keepWithNext=False,
+    ))
+
+    # Lists inside portfolio sections
+    styles.add(ParagraphStyle(
+        name='PortfolioListItem',
+        parent=styles['PortfolioBlock'],
+        fontName='BerninaSans-NarrowExtrabold',
+        fontSize=px_to_pt(11),
+        bulletIndent=em_to_pt(0.8),
+        spaceBefore=em_to_pt(0.2),
+        spaceAfter=em_to_pt(0.2),
+        leading=13,
+        wordSpacing=2,
+        tracking=110,
+        textTransform='uppercase',
     ))
 
     # Emphasized text (italics)
@@ -272,6 +340,30 @@ def get_vscode_stylesheet(theme: str = 'light') -> StyleSheet1:
         spaceBefore=em_to_pt(1.0),
         spaceAfter=em_to_pt(0.5),
         keepWithNext=True,           # Keep signature lines together
+    ))
+
+    # Info callout variation
+    styles.add(ParagraphStyle(
+        name='CalloutInfo',
+        parent=styles['CalloutBlock'],
+        borderLeftColor=HexColor('#0090f1'),  # Blue for info
+        backColor=Color(0.95, 0.98, 1.0),    # Very light blue background
+    ))
+
+    # Warning callout variation
+    styles.add(ParagraphStyle(
+        name='CalloutWarning',
+        parent=styles['CalloutBlock'],
+        borderLeftColor=HexColor('#f1a000'),  # Orange for warning
+        backColor=Color(1.0, 0.98, 0.95),    # Very light orange background
+    ))
+
+    # Note callout variation
+    styles.add(ParagraphStyle(
+        name='CalloutNote',
+        parent=styles['CalloutBlock'],
+        borderLeftColor=HexColor('#66e4b4'),  # Green for notes
+        backColor=Color(0.95, 1.0, 0.98),    # Very light green background
     ))
 
     return styles

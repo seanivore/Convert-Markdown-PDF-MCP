@@ -215,13 +215,26 @@ def convert_markdown_to_pdf(
             in_header = False
             in_signature = False
             in_portfolio = False
+            in_blockquote = False
             last_was_heading = False
             
             for element in root.iter():
                 if element.tag == 'root':
                     continue
+                
+                print(f"\nProcessing element: {element.tag}")
+                print(f"Current state: portfolio={in_portfolio}, blockquote={in_blockquote}")
+                    
+                # Track when we enter and exit blockquotes
+                if element.tag == 'blockquote':
+                    print("-> Entering blockquote")
+                    in_blockquote = True
+                elif in_blockquote and element.tag != 'p':
+                    print("<- Exiting blockquote")
+                    in_blockquote = False
                     
                 if element.tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
+                    print(f"-> Processing heading {element.tag}")
                     text = process_inline_text(element)
                     
                     # Special handling for font comparison
@@ -247,8 +260,13 @@ def convert_markdown_to_pdf(
                         elements.append(Paragraph(text, styles['BerninoBold']))
                     else:
                         style = f'Heading{element.tag[1]}'
-                        elements.append(Paragraph(text, styles[style]))
+                        if element.tag == 'h5':
+                            # H5 sections use the callout treatment
+                            elements.append(Paragraph(text, styles['Heading5']))
+                        else:
+                            elements.append(Paragraph(text, styles[style]))
                     
+                    # Update section tracking
                     if element.tag == 'h1':
                         in_header = True
                         in_portfolio = False
@@ -258,13 +276,15 @@ def convert_markdown_to_pdf(
                         in_portfolio = True  # Start portfolio section
                     else:
                         in_header = False
+                    
                     last_was_heading = True
-                        
+                    
                 elif element.tag == 'p':
-                    # Skip paragraphs that are inside blockquotes
-                    if in_portfolio:
+                    # Skip paragraphs that are inside blockquotes - they're handled by the blockquote processor
+                    if in_blockquote:
                         continue
-                        
+
+                    # Process all other paragraphs
                     text = process_inline_text(element)
                     
                     # Check for signature section
@@ -275,9 +295,9 @@ def convert_markdown_to_pdf(
                     if in_header:
                         if 'ITALICS' in text:  # Date line
                             text = text.replace('ITALICS', '').strip()
-                            elements.append(Paragraph(text, styles['Heading3']))  # Was DateLine
+                            elements.append(Paragraph(text, styles['Heading3']))
                         else:  # Role line
-                            elements.append(Paragraph(text, styles['Heading2']))  # Was HeaderInfo
+                            elements.append(Paragraph(text, styles['Heading2']))
                             if last_was_heading:
                                 elements.append(Spacer(1, em_to_pt(0.3)))
                     elif in_signature:
@@ -287,7 +307,11 @@ def convert_markdown_to_pdf(
                             if line.strip():
                                 elements.append(Paragraph(line.strip(), styles['Signature']))
                     else:
-                        elements.append(Paragraph(text, styles['Body']))
+                        # Regular paragraphs should align with left margin unless in portfolio
+                        if in_portfolio:
+                            elements.append(Paragraph(text, styles['PortfolioText']))
+                        else:
+                            elements.append(Paragraph(text, styles['Body']))
                     last_was_heading = False
                     
                 elif element.tag == 'ul':
@@ -295,16 +319,8 @@ def convert_markdown_to_pdf(
                     for li in element.findall('li'):
                         text = process_inline_text(li)
                         if text.strip():
-                            colors = THEME_COLORS[theme]
                             list_items.append(Paragraph('• ' + text.strip(), 
-                                ParagraphStyle(
-                                    'PortfolioListItem' if in_portfolio else 'ListItem',
-                                    parent=styles['ListItem'],
-                                    borderLeftWidth=4 if in_portfolio else 0,
-                                    borderLeftColor=colors['link'] if in_portfolio else None,
-                                    borderLeftPadding=em_to_pt(0.5) if in_portfolio else 0,
-                                    leftIndent=em_to_pt(2.0) if in_portfolio else em_to_pt(1.2)
-                                )
+                                styles['PortfolioListItem'] if in_portfolio else styles['ListItem']
                             ))
                     # Add all list items
                     elements.extend(list_items)
@@ -324,10 +340,8 @@ def convert_markdown_to_pdf(
                         text = element.text
                     
                     if text.strip():
-                        if in_portfolio:
-                            elements.append(Paragraph(text.strip(), styles['PortfolioBlock']))
-                        else:
-                            elements.append(Paragraph(text.strip(), styles['Blockquote']))
+                        # All blockquotes get the big text treatment
+                        elements.append(Paragraph(text.strip(), styles['Blockquote']))
                     last_was_heading = False
                     
                 elif element.tag == 'pre':
