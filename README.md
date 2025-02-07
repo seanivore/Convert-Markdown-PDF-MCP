@@ -1,6 +1,6 @@
-# md-pdf-mcp MCP server
+# md-pdf-mcp (Markdown to PDF MCP Server)
 
-A Model Context Protocol (MCP) server that converts Markdown to gorgeously styled PDFs using VS Code's markdown styling and Python's ReportLab.
+Convert Markdown to gorgeously styled PDFs using VS Code's markdown styling and Python's ReportLab.
 
 ## Components
 
@@ -45,7 +45,7 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
       "command": "uv",
       "args": [
         "--directory",
-        "/Users/seanivore/Development/md-pdf-mcp",
+        "/Users/path/to/your/local/md-pdf-mcp",
         "run",
         "md-pdf-mcp"
       ]

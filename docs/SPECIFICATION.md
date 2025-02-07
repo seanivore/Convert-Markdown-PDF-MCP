@@ -1,8 +1,5 @@
 # MD-PDF-MCP Specification
 
-## Overview
-MCP server for converting Markdown documents to styled PDFs using VS Code's styling and ReportLab.
-
 ## API
 
 ### convert_markdown
