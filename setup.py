@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages 
 
 setup(
-    name="md_pdf_mcp",
+    name="md-pdf-mcp",
     version="0.1.0",
     packages=find_packages(),
     install_requires=[

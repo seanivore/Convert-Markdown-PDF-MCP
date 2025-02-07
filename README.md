@@ -1,70 +1,111 @@
-# md-pdf-mcp
+# md-pdf-mcp MCP server
 
 A Model Context Protocol (MCP) server that converts Markdown to gorgeously styled PDFs using VS Code's markdown styling and Python's ReportLab.
 
-## Why?
-VS Code has some of the most beautiful markdown rendering out there - clean typography, perfect spacing, and just the right amount of styling. This MCP server lets you generate PDFs with that exact same styling, powered by Python's industry-standard PDF library, ReportLab.
+## Components
 
-## Features
-- Uses VS Code's markdown CSS (MIT licensed)
-- Powered by ReportLab - Python's battle-tested PDF library
-- Perfect typography and spacing
-- Code syntax highlighting
-- Simple MCP interface
+### Resources
 
-## Quick Start
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/md-pdf-mcp
-cd md-pdf-mcp
+The server implements a simple note storage system with:
+- Custom note:// URI scheme for accessing individual notes
+- Each note resource has a name, description and text/plain mimetype
 
-# Set up environment
-python -m venv ~/.venvs/md-pdf-mcp
-source ~/.venvs/md-pdf-mcp/bin/activate  # or `venv\Scripts\activate` on Windows
+### Prompts
 
-# Install dependencies
-pip install -r requirements.txt
-pip install -e .
-```
+The server provides a single prompt:
+- summarize-notes: Creates summaries of all stored notes
+  - Optional "style" argument to control detail level (brief/detailed)
+  - Generates prompt combining all current notes with style preference
 
-## Usage
-The server exposes a single tool:
-```python
-convert_markdown(
-    markdown: str,       # Markdown content to convert
-    output_path: str,    # Where to save the PDF
-) -> bool:              # Returns True if successful
-```
+### Tools
+
+The server implements one tool:
+- add-note: Adds a new note to the server
+  - Takes "name" and "content" as required string arguments
+  - Updates server state and notifies clients of resource changes
+
+## Configuration
+
+[TODO: Add configuration details specific to your implementation]
+
+## Quickstart
+
+### Install
+
+#### Claude Desktop
+
+On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+
+<details>
+  <summary>Development/Unpublished Servers Configuration</summary>
+  ```
+  "mcpServers": {
+    "md-pdf-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/seanivore/Development/md-pdf-mcp",
+        "run",
+        "md-pdf-mcp"
+      ]
+    }
+  }
+  ```
+</details>
+
+<details>
+  <summary>Published Servers Configuration</summary>
+  ```
+  "mcpServers": {
+    "md-pdf-mcp": {
+      "command": "uvx",
+      "args": [
+        "md-pdf-mcp"
+      ]
+    }
+  }
+  ```
+</details>
 
 ## Development
 
-### Running Tests
-Run all tests:
+### Building and Publishing
+
+To prepare the package for distribution:
+
+1. Sync dependencies and update lockfile:
 ```bash
-pytest tests/
+uv sync
 ```
 
-Generate test PDFs (won't be auto-deleted):
+2. Build package distributions:
 ```bash
-python tests/test_pdf.py
+uv build
 ```
 
-### Development Tips
-1. The `tests/test_styling.md` file contains examples of all supported markdown elements
-2. Visual test PDFs are generated in the tests directory as:
-   - `sample_light_theme.pdf`
-   - `sample_high-contrast_theme.pdf`
-3. Use `black` for code formatting:
+This will create source and wheel distributions in the `dist/` directory.
+
+3. Publish to PyPI:
 ```bash
-black md_pdf_mcp/ tests/
+uv publish
 ```
 
-## Requirements
-- Python 3.13+
-- ReportLab for PDF generation
-- VS Code markdown styling
-- MCP server framework
+Note: You'll need to set PyPI credentials via environment variables or command flags:
+- Token: `--token` or `UV_PUBLISH_TOKEN`
+- Or username/password: `--username`/`UV_PUBLISH_USERNAME` and `--password`/`UV_PUBLISH_PASSWORD`
 
-## Acknowledgments
-- VS Code markdown styling (MIT licensed)
-- ReportLab team for their amazing PDF library
+### Debugging
+
+Since MCP servers run over stdio, debugging can be challenging. For the best debugging
+experience, we strongly recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector).
+
+
+You can launch the MCP Inspector via [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) with this command:
+
+```bash
+npx @modelcontextprotocol/inspector uv --directory /Users/seanivore/Development/md-pdf-mcp run md-pdf-mcp
+```
+
+
+Upon launching, the Inspector will display a URL that you can access in your browser to begin debugging.

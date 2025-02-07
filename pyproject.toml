@@ -1,0 +1,22 @@
+[project]
+name = "md-pdf-mcp"
+version = "0.1.0"
+description = "A Model Context Protocol (MCP) server that converts Markdown to gorgeously styled PDFs using VS Code's markdown styling and Python's ReportLab."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=1.2.1",
+    "markdown>=3.7",
+    "reportlab>=4.3.0",
+    "pillow>=9.0.0",
+]
+[[project.authors]]
+name = "seanivore"
+email = "sean@aug.ltd"
+
+[build-system]
+requires = [ "hatchling",]
+build-backend = "hatchling.build"
+
+[project.scripts]
+md-pdf-mcp = "md_pdf_mcp.__main__:main"
