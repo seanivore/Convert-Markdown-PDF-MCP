@@ -1,3 +1,6 @@
+# Environment variables
+.env
+
 # Virtual environment
 venv/
 
@@ -7,26 +10,29 @@ __pycache__/
 *.pyc
 
 # Aider files
-.aider*
 .aider.chat.history.md
+.aider.tags.cache.v3
 
 # Dependencies
 node_modules/
 npm-debug.log*
+*.log
+*.lock
 
 # OS files
 .DS_Store
 .DS_Store?
-._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
 Thumbs.db
 
 # IDE/Editor files
-.idea/
-.vscode/
 *.swp
 *.swo
-*.code-workspac
-.md-pdf-mcp.code-workspace
+
+# Rust specific
+target/
+**/*.rs.bk
+.cargo/
+rusty-tags.vi

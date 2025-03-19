@@ -1,0 +1,27 @@
+i{% comment %}
+  This is a test Liquid template to explore the extension features
+{% endcomment %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ page.title | default: "Test Page" }}</title>
+</head>
+<body>
+  <h1>{% if page.heading %}
+    {{ page.heading }}
+  {% else %}
+    Welcome to our test page!
+  {% endif %}</h1>
+
+  {% assign my_variable = "Hello World!" %}
+  <p>{{ my_variable }}</p>
+
+  {% for item in collection.items limit:3 %}
+    <div class="item">
+      <h2>{{ item.title }}</h2>
+      <p>{{ item.description }}</p>
+    </div>
+  {% endfor %}
+</body>
+</html> 

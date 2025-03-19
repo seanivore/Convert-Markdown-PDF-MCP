@@ -1,0 +1,20 @@
+{% assign favorite_food = "sushi" %}
+{% assign time_of_day = "evening" %}
+
+<h1>
+  {% if time_of_day == "morning" %}
+    Good morning! 
+  {% else %}
+    Good evening!
+  {% endif %}
+</h1>
+
+<p>I really love {{ favorite_food }}!</p>
+
+{% for number in (1..3) %}
+  <p>This is line number {{ number }}</p>
+{% endfor %} 
+
+What is going on here? <dogs>bark bark</dogs>
+
+Today's special is {{ daily_special }}!
